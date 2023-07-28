@@ -16,12 +16,15 @@ Returns:
 
 import argparse
 
+import langid
 from langdetect import DetectorFactory
 
 DetectorFactory.seed = 0
 
 from langdetect import detect
 from transformers import pipeline
+
+# from lingua import Language, LanguageDetectorBuilder
 
 
 def detect_lang(article, target_lang):
@@ -36,11 +39,36 @@ def detect_lang(article, target_lang):
         string: detected language short form
     """
     result_lang = detect(article)
-
+    print(result_lang)
     if result_lang == target_lang:
         return result_lang
     else:
         return result_lang
+
+
+def lang_detect(article, target_lang):
+    """
+    Language Detection using library langid
+
+    Args:
+        article (string): article that user wish to translate
+        target_lang (string): language user want to translate article into
+
+    Returns:
+        string: detected language short form
+    """
+
+    # lingua codes https://github.com/pemistahl/lingua-py/tree/v1.3.2
+    # languages = [Language.ENGLISH, Language.CHINESE]
+    # detector = LanguageDetectorBuilder.from_languages(*languages).build()
+    # result_lang = detector.detect_language_of(article)
+
+    result_lang = langid.classify(article)
+    print(result_lang[0])
+    if result_lang == target_lang:
+        return result_lang[0]
+    else:
+        return result_lang[0]
 
 
 def opus_trans(article, result_lang, target_lang):
@@ -82,12 +110,8 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
-    result_lang = detect_lang(args.article, args.target_lang)
 
-    if result_lang == "zh-cn":
-        result_lang = "zh"
-    elif result_lang == "zh-tw":
-        result_lang = "zh"
+    result_lang = lang_detect(args.article, args.target_lang)
 
     if result_lang == args.target_lang:
         pass
